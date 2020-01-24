@@ -1,0 +1,118 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+
+entity LogicalStep_Lab3_top is port (
+   clkin_50		: in	std_logic;
+	pb				: in	std_logic_vector(3 downto 0);
+ 	sw   			: in  std_logic_vector(7 downto 0); -- The switch inputs
+   leds			: out std_logic_vector(7 downto 0);	-- for displaying the switch content
+   seg7_data 	: out std_logic_vector(6 downto 0); -- 7-bit outputs to a 7-segment
+	seg7_char1  : out	std_logic;							-- seg7 digi selectors
+	seg7_char2  : out	std_logic							-- seg7 digi selectors
+	
+); 
+end LogicalStep_Lab3_top;
+
+architecture Energy_Monitor of LogicalStep_Lab3_top is
+--
+-- Components Used
+------------------------------------------------------------------- 
+	  component Compx4 port (
+			a : in std_logic_vector(3 downto 0);
+			b: in std_logic_vector(7 downto 4);
+			output: out std_logic_vector(2 downto 0)
+		); 
+		end component;
+		
+		component segment7_mux port(
+		clk			   : in	std_logic := '0';
+		DIN2				: in	std_logic_vector(6 downto 0); --digit1 in
+		DIN1 				: in  std_logic_vector(6 downto 0); 
+		DOUT				: out std_logic_vector(6 downto 0);
+		DIG2 				: out std_logic; 
+		DIG1 				: out	std_logic
+);
+	END COMPONENT;
+	
+	  component SevenSegment port (
+   hex   		:  in  std_logic_vector(3 downto 0);
+   sevenseg 	:  out std_logic_vector(6 downto 0) 
+   ); 
+   end component;
+	
+		
+------------------------------------------------------------------
+	
+	
+-- Create any signals, or temporary variables to be used
+	signal Current_Temp : in std_logic_vector(3 downto 0);
+	signal Desired_Temp : in std_logic_vector(3 downto 0);
+	signal tempCompare : in std_logic_vector(2 downto 0);
+	signal VacationMode : in std_logic;
+	signal MC_TESTMODE : in std_logic;
+	signal WindowOpen : in std_logic;
+	signal DoorOpen : in std_logic;
+	signal FurnaceOn : std_logic;
+	signal SystemAtTemp : std_logic;
+	signal ACOn : std_logic;
+	signal BlowerOn: std_logic;
+	
+	signal seg7_A		: std_logic_vector(6 downto 0);
+	signal hex_A		: std_logic_vector(3 downto 0);
+	signal seg7_B		: std_logic_vector(6 downto 0);
+	signal hex_B		: std_logic_vector(3 downto 0);
+	
+	
+-- Here the circuit begins
+
+	Current_Temp <= sw(3 downto 0);
+	Desired_Temp <= sw(7 downto 4);
+	VacationMode <= pb(3);
+	MC_TESTMODE <= not pb(2);
+	WindowOpen <= not pb(1);
+	DoorOpen <= not pb(0);
+	
+	
+	
+	INST0: Compx4 port map(Current_Temp, Desired_Temp, tempCompare);
+	INST1: segment7_mux port map(clkin_50, seg7_A, seg7_B, seg7_data, seg7_char2, seg7_char1);
+	INST2: SevenSegment port map(sw(3 downto 0), seg7_A);
+	INST3: SevenSegment port map(sw(7 downto 4), seg7_B);
+	
+	
+	FurnaceOn <= tempCompare = "001" and  WindowOpen = '0' and DoorOpen = '0';
+	leds(0) <= FurnaceOn;
+	
+	SystemAtTemp <= tempCompare = "010";
+	leds(1) <= SystemAtTemp;
+	
+	ACOn <= tempCompare = "100" and WindowOpen = '0' and DoorOpen = '0';
+	leds(2) <= ACOn;
+	
+	BlowerOn <= (ACOn = '1' or FurnaceOn = '1') and WindowOpen = '0' and DoorOpen = '0';
+	
+	leds(3) <= BlowerOn;
+	
+	leds(4) <= DoorOpen;
+	
+	leds(5) <= WindowOpen;
+	
+	--leds(6) <= 
+	
+	leds(7) <= VacationMode;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+begin
+ 
+end Energy_Monitor;
+

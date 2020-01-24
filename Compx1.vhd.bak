@@ -1,0 +1,24 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity Compx1 is port (
+   
+   a   	:  in  std_logic;
+   b		:  in std_logic;
+	output : out std_logic_vector(2 downto 0);
+); 
+end Compx1;
+
+architecture Compx1Architecture of Compx1 is 
+	signal c = a&b;
+	
+begin
+		with c select
+		 output <= "0" when "10",
+						"1" when "00",
+						"1" when "11",
+						"2" when "01";
+				
+ 
+end architecture Compx1Architecture;

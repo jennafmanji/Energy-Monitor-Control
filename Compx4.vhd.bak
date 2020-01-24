@@ -1,0 +1,43 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+entity Compx4 is port (
+   
+   a   	:  in  std_logic_vector(3 downto 0);
+   b		:  in std_logic_vector(3 downto 0);
+	output : out std_logic_vector(2 downto 0);
+); 
+end Compx4;
+
+architecture Compx4Architecture of Compx4 is 
+	
+	  component Compx1 port (
+		a : in std_logic;
+		b: in std_logic;
+		output: out std_logic_vector(2 downto 0);
+		); 
+		end component;
+	
+		signal oneBit : std_logic_vector(2 downto 0);
+		signal twoBit : std_logic_vector(2 downto 0);
+		signal threeBit : std_logic_vector(2 downto 0);
+		signal fourBit : std_logic_vector(2 downto 0);
+
+	
+begin
+	--Greater equal less
+	Compx1(a(0), b(0), oneBit);
+	Compx1(a(1), b(1), twoBit);
+	Compx1(a(2), b(2), threeBit);
+	Compx1(a(3), b(3), fourBit);
+	
+		
+	output(0) <= (fourBit(0) or fourBit(1)) and (threeBit(0) or threeBit(1)) and (twoBit(0) or twoBit(1)) and (twoBit(0) or twoBit(1));
+	output(1) <= oneBit(1) and twoBit(1) and threeBit(1) and fourBit(1);
+	output(2) <= not(output(0)) and not(output(1));
+		
+
+				
+ 
+end architecture Compx4Architecture;
